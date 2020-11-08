@@ -13,11 +13,11 @@ int main()
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
-        std::cerr << "Error opening socket!\n";
+        std::cerr << "ERROR opening socket!\n";
         return -1;
     }
 
-    // Bind the socket to an IP/Port
+    // Bind the socket to an ip address and port number
     sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(54000); //host to network short conversion
@@ -25,7 +25,7 @@ int main()
 
     if (bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        std::cerr << "Error binding to IP/Port!\n";
+        std::cerr << "ERROR binding to IP/Port!\n";
         return -2;
     }
 
@@ -36,32 +36,23 @@ int main()
         return -3;
     }
 
-    // Accept a call
+    // Accept a connection from a client
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
-    char host[NI_MAXHOST];
-    char svc[NI_MAXSERV];
+    char host[NI_MAXHOST]; // Client's remote name
+    char svc[NI_MAXSERV]; // Service (i.e port) the client is connected on
 
     int clientSocket = accept(sockfd, (sockaddr *)&client, &clientSize);
     if (clientSocket < 0)
     {
-        std::cerr << "ERROR wirh client connecting!\n";
+        std::cerr << "ERROR with client connecting!\n";
         return -4;
     }
-
-    // Close the listening socket
-    close(sockfd);
 
     memset(host, 0, NI_MAXHOST);
     memset(svc, 0, NI_MAXSERV);
 
-    int result = getnameinfo((sockaddr *)&client,
-                            sizeof(client),
-                            host,
-                            NI_MAXHOST,
-                            svc,
-                            NI_MAXSERV,
-                            0);
+    int result = getnameinfo((sockaddr *)&client, sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
 
     if (result)
     {
@@ -70,41 +61,43 @@ int main()
     else
     {
         inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-        std::cout << host << " connected on: " << ntohs(client.sin_port) << "!\n";
+        std::cout << host << " connected on port: " << ntohs(client.sin_port) << "!\n";
     }
     
+    // Close the listening socket
+    close(sockfd);
+
     // While reveiving - Display message, echo message
     char buf[4096];
     while (true)
     {
         // Clear buffer
-        memset(buf, 0, 4096); // fill with zeros
+        memset(buf, 0, 4096);
 
         // Wait for a message
-        int byteRecv = recv(clientSocket, buf, 4096, 0);
-        if (byteRecv < 0)
+        int bytesReceived = recv(clientSocket, buf, 4096, 0);
+        if (bytesReceived < 0)
         {
-            std::cerr << "There was a connection issue...\n";
+            std::cerr << "ERROR receiving message!\n";
             break;    
         }
 
-        if (byteRecv == 0) // This is normal
+        if (bytesReceived == 0) // This is normal
         {
-            std::cout << "The client disconnected.\n";
+            std::cout << "Client has disconnected.\n";
             break;
         }
 
-        // Display the message from client 
-        std::cout << "Message Received: " << std::string(buf, 0, byteRecv);
+        // Display the message received from the client 
+        std::cout << "Message Received: " << std::string(buf, 0, bytesReceived) << "\n";
 
-        // Resend the message
-        send(clientSocket, buf, byteRecv + 1, 0);
+        // Send the message back to the client
+        send(clientSocket, buf, bytesReceived + 1, 0);
 
     }
 
-    // Close socket
+    // Close the socket
     close(clientSocket);
 
-    //std::cout << "Hello, World! I will become the Server.\n";
     return 0;
 }
