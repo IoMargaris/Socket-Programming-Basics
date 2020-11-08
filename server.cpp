@@ -89,11 +89,10 @@ int main()
         }
 
         // Display the message received from the client 
-        std::cout << "Message Received: " << std::string(buf, 0, bytesReceived) << "\n";
+        std::cout << "Client's Message: " << std::string(buf, 0, bytesReceived) << "\n";
 
         // Send the message back to the client
         send(clientSocket, buf, bytesReceived + 1, 0);
-
     }
 
     // Close the socket
