@@ -1,5 +1,5 @@
 # Client/Server
-A simple Client/Server application written in C++ using sockets to send and receive back a message.
+A simple Client/Server application written in C++ using sockets. The Client can send a message to the Server and the Server will respond back to the Client with the same message.
 <br>
 
 ## Steps:
