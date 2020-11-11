@@ -9,11 +9,13 @@
 
 int main()
 {
-    // Create a socket
+    // Creating socket file descriptor
+    std::cout << "Creating a socket...\n";
+
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
-        std::cerr << "ERROR opening socket!\n";
+        perror("Error opening socket!\n");
         return -1;
     }
 
@@ -25,36 +27,36 @@ int main()
 
     if (bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        std::cerr << "ERROR binding to IP/Port!\n";
+        perror("Error binding to IP/Port!\n");
         return -2;
     }
 
     // Mark the socket for listening in
     if (listen(sockfd, SOMAXCONN) < 0)
     {
-        std::cerr << "ERROR listening!\n";
+        perror("Error listening!\n");
         return -3;
     }
 
-    // Accept a connection from a client
+    // Accepting a connection from a client
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     char host[NI_MAXHOST]; // Client's remote name
     char svc[NI_MAXSERV]; // Service (i.e port) the client is connected on
 
+    std::cout << "Waiting for a connection...\n";
+
     int clientSocket = accept(sockfd, (sockaddr *)&client, &clientSize);
     if (clientSocket < 0)
     {
-        std::cerr << "ERROR with client connecting!\n";
+        perror("Error with client connecting!\n");
         return -4;
     }
 
     memset(host, 0, NI_MAXHOST);
     memset(svc, 0, NI_MAXSERV);
 
-    int result = getnameinfo((sockaddr *)&client, sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
-
-    if (result)
+    if (getnameinfo((sockaddr *)&client, sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0) == 0)
     {
         std::cout << host << " connected on: " << svc << "!\n"; 
     }
@@ -64,21 +66,22 @@ int main()
         std::cout << host << " connected on port: " << ntohs(client.sin_port) << "!\n";
     }
     
-    // Close the listening socket
+    // Close the first socket
     close(sockfd);
 
-    // While reveiving - Display message, echo message
-    char buf[4096];
+    char buff[4096];
+
+    // While receiving - Display message, echo message
     while (true)
     {
         // Clear buffer
-        memset(buf, 0, 4096);
+        memset(buff, 0, 4096);
 
-        // Wait for a message
-        int bytesReceived = recv(clientSocket, buf, 4096, 0);
+        // Wait for client to send message
+        int bytesReceived = recv(clientSocket, buff, 4096, 0);
         if (bytesReceived < 0)
         {
-            std::cerr << "ERROR receiving message!\n";
+            perror("Error receiving message!\n");
             break;    
         }
 
@@ -89,10 +92,10 @@ int main()
         }
 
         // Display the message received from the client 
-        std::cout << "Client's Message: " << std::string(buf, 0, bytesReceived) << "\n";
+        std::cout << "Message received: " << std::string(buff, 0, bytesReceived) << "\n";
 
         // Send the message back to the client
-        send(clientSocket, buf, bytesReceived + 1, 0);
+        send(clientSocket, buff, bytesReceived + 1, 0);
     }
 
     // Close the socket

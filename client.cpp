@@ -10,10 +10,11 @@
 int main()
 {
 
-    // Create a socket
+    // Creating socket file descriptor
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
+        perror("Socket creation failed!");
         return -1;
     }
 
@@ -27,14 +28,17 @@ int main()
     inet_pton(AF_INET, ipAdress.c_str(), &serv_addr.sin_addr);
 
     // Connect to the server on the socket
+    std::cout << "Connecting to server...\n";
+
     int connectionResult = connect(sockfd, (sockaddr *)&serv_addr, sizeof(serv_addr));
     if (connectionResult < 0)
     {
+        perror("Error connection failed!");
         return -1;
     }
 
     // While loop
-    char buf[4096];
+    char buff[4096];
     std::string userInput;
 
     do {
@@ -51,16 +55,16 @@ int main()
         }
 
         // Wait for response
-        memset(buf, 0, 4096);
-        int bytesReceived = recv(sockfd, buf, 4096, 0);
+        memset(buff, 0, 4096);
+        int bytesReceived = recv(sockfd, buff, 4096, 0);
         if (bytesReceived < 0)
         {
-            std::cout << "ERROR getting reposonse from Server.";
+            std::cout << "ERROR getting response from Server.";
         }
         else
         {
             // Display response
-            std::cout << "SERVER Response: " << std::string(buf, bytesReceived) << "\r\n";
+            std::cout << "Server's Response: " << std::string(buff, bytesReceived) << "\r\n";
         }
         
     } while (true);
