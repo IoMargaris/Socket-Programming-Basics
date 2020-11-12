@@ -1,38 +1,21 @@
 # Client/Server
-A simple Client/Server application written in C++ using sockets. The Client can send a message to the Server and the Server will respond back to the Client with the same message.
+A simple Client/Server application written in C++ using sockets. The Client can send a message to the Server and the Server can send a message back. Essentially, a really simple chat.
 <br>
 
 ## Steps:
-### Compile the server.cpp file
+### Compile the server.cpp & client.cpp files
 ```cpp
 g++ server.cpp -o Server
-```
 
-### Compile the client.cpp file
-```cpp
 g++ client.cpp -o Client
 ```
 
-### Run the Server
+### Run the Server first:
 ```cpp
 ./Server
 ```
-![Running the Server](./images/running_server.png)
 
-### Run the Client 
+### Then, run the Client 
 ```cpp
 ./Client
 ```
-![Running the Client](./images/running_client.png)
-
-### Observe the server side
-![Running the Client, message from server](./images/running_client2.png)
-
-
-### Type in the message you wish the Client to send. 
-
-*The Server will display the received message and then respond back to the Client with the same message:*
-
-![Sending message, Client Side](./images/sending_message.png)
-![Sending message, Server side](./images/sending_message2.png)
-![Server Response](./images/server_response.png)
