@@ -20,7 +20,9 @@ int main()
 
     // Create a structure for the server we are connecting with (also called a Hint)
     int port = 54000;
-    std::string ipAdress = "127.0.0.1";
+
+    // TODO: Test connecting to Stepan's server IP address (Remote)
+    std::string ipAdress = "174.138.14.251";
 
     sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
