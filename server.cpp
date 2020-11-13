@@ -6,9 +6,31 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
+#include <sqlite3.h> 
 
 int main()
 {
+    // Connecting to SQLite Database
+    std::cout << "Connecting to database...\n";
+
+    sqlite3 *db;
+    char *zErrMsg = 0;
+    int rc;
+
+    rc = sqlite3_open("test.db", &db);
+
+    if(rc)
+    {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return(0);
+    } 
+    else 
+    {
+        fprintf(stderr, "Opened database successfully\n");
+    }
+
+    sqlite3_close(db);
+
     // Creating socket file descriptor
     std::cout << "Creating a socket...\n";
 
@@ -19,7 +41,7 @@ int main()
         return -1;
     }
 
-    /* Setup the host_addr structure for use in bind call server byte order */
+    // Setup the host_addr structure for use in bind call server byte order 
     sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     // Convert short integer value for port must be converted into network byte order
