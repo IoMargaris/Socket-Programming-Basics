@@ -6,30 +6,22 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
-#include <sqlite3.h> 
+#include <sqlite3.h>
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+   int i;
+   for(i = 0; i<argc; i++) {
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   }
+   printf("\n");
+   return 0;
+}
 
 int main()
 {
     // Connecting to SQLite Database
+    std::cout << "----------------------------------------\n";
     std::cout << "Connecting to database...\n";
-
-    sqlite3 *db;
-    char *zErrMsg = 0;
-    int rc;
-
-    rc = sqlite3_open("test.db", &db);
-
-    if(rc)
-    {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-        return(0);
-    } 
-    else 
-    {
-        fprintf(stderr, "Opened database successfully\n");
-    }
-
-    sqlite3_close(db);
 
     // Creating socket file descriptor
     std::cout << "Creating a socket...\n";
@@ -127,12 +119,53 @@ int main()
         }
 
         // Display the message received from the client 
-        std::cout << "Message received: " << std::string(buff, 0, bytesReceived) << "\n";
+        std::string client_message = std::string(buff, 0, bytesReceived);
+        std::cout << "Message received: " << client_message << "\n";
 
-        std::cout << "> ";
-        getline(std::cin, serv_response);
-        // Send the message back to the client
-        send(clientSocket, serv_response.c_str(), serv_response.size()+ 1, 0);
+        // TODO: - Open DB, Insert the message, Close the DB
+        //       - Fill in all the table columns
+        sqlite3 *db;
+        char *zErrMsg = 0;
+        int rc;
+
+        rc = sqlite3_open("event_log.db", &db);
+
+        if(rc)
+        {
+            fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+            return(0);
+        } 
+        else 
+        {
+            std::cout << "Opened database successfully\n";
+        }
+
+        /* Create SQL statement */
+        std::string sql;
+
+        sql = "INSERT INTO event_log (Message, Timestamp) VALUES ('" + client_message + "', CURRENT_TIMESTAMP);";
+
+        /* Execute SQL statement */
+        rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+
+        if( rc != SQLITE_OK ){
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            sqlite3_free(zErrMsg);
+
+            // Send the message back to the client
+            serv_response = "Event logged successfully";
+            send(clientSocket, serv_response.c_str(), serv_response.size()+ 1, 0);
+            std::cout << "----------------------------------------\n";
+        } else {
+
+            // Send the message back to the client
+            serv_response = "Event logged successfully";
+            send(clientSocket, serv_response.c_str(), serv_response.size()+ 1, 0);
+
+            std::cout << "Event successfully logged!\n";
+            std::cout << "----------------------------------------\n";
+        }
+        sqlite3_close(db);
     }
 
     // Close the socket

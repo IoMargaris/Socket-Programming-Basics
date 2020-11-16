@@ -9,7 +9,8 @@
 
 int main()
 {
-
+    std::cout << "----------------------------------------\n";
+    std::cout << "Creating socket...\n";
     // Creating socket file descriptor
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -65,6 +66,7 @@ int main()
         {
             // Display response
             std::cout << "Server's Response: " << std::string(buff, bytesReceived) << "\r\n";
+            std::cout << "----------------------------------------\n";
         }
         
     } while (true);
