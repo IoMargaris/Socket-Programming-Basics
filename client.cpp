@@ -38,13 +38,16 @@ int main()
         return -1;
     }
 
+    std::cout << "Successfully connected to server!\n";
+
     // While loop
     char buff[4096];
     std::string userInput;
 
-    do {
-        // Prompt user to enter lines of text
-        std::cout << "> ";
+    do 
+    {
+        // Reading user input
+        std::cout << "> Enter Message: ";
         getline(std::cin, userInput);
 
         // Send the user input to the server
