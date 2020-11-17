@@ -19,11 +19,8 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 
 int main()
 {
-    // Connecting to SQLite Database
-    std::cout << "----------------------------------------\n";
-    std::cout << "Connecting to database...\n";
-
     // Creating socket file descriptor
+    std::cout << "----------------------------------------\n";
     std::cout << "Creating a socket...\n";
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -32,6 +29,8 @@ int main()
         perror("Error opening socket!\n");
         return -1;
     }
+
+    std::cout << "Socket successfully created!\n";
 
     // Setup the host_addr structure for use in bind call server byte order 
     sockaddr_in serv_addr;
@@ -84,7 +83,8 @@ int main()
 
     if (getnameinfo((sockaddr *)&client, sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0) == 0)
     {
-        std::cout << host << " connected on: " << svc << "!\n"; 
+        std::cout << host << " connected on: " << svc << "!\n";
+        std::cout << "----------------------------------------\n";
     }
     else
     {
@@ -98,6 +98,7 @@ int main()
     char buff[4096];
     std::string serv_response;
 
+    std::cout << "Waiting for client message...\n";
     // While receiving - Display message, echo message
     while (true)
     {
@@ -122,8 +123,9 @@ int main()
         std::string client_message = std::string(buff, 0, bytesReceived);
         std::cout << "Message received: " << client_message << "\n";
 
-        // TODO: - Open DB, Insert the message, Close the DB
-        //       - Fill in all the table columns
+        // Connect/Open DB, Insert the message and a timestamp, close the DB
+        std::cout << "----------------------------------------\n";
+        std::cout << "Connecting to database...\n";
         sqlite3 *db;
         char *zErrMsg = 0;
         int rc;
@@ -148,7 +150,8 @@ int main()
         /* Execute SQL statement */
         rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
 
-        if( rc != SQLITE_OK ){
+        if( rc != SQLITE_OK )
+        {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
             sqlite3_free(zErrMsg);
 
@@ -156,14 +159,16 @@ int main()
             serv_response = "Event logged successfully";
             send(clientSocket, serv_response.c_str(), serv_response.size()+ 1, 0);
             std::cout << "----------------------------------------\n";
-        } else {
-
+        } 
+        else 
+        {
             // Send the message back to the client
             serv_response = "Event logged successfully";
             send(clientSocket, serv_response.c_str(), serv_response.size()+ 1, 0);
 
             std::cout << "Event successfully logged!\n";
             std::cout << "----------------------------------------\n";
+            std::cout << "\nWaiting for next client message...\n";
         }
         sqlite3_close(db);
     }
