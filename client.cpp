@@ -9,7 +9,8 @@
 
 int main()
 {
-
+    std::cout << "----------------------------------------\n";
+    std::cout << "Creating socket...\n";
     // Creating socket file descriptor
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -37,13 +38,16 @@ int main()
         return -1;
     }
 
+    std::cout << "Successfully connected to server!\n";
+
     // While loop
     char buff[4096];
     std::string userInput;
 
-    do {
-        // Prompt user to enter lines of text
-        std::cout << "> ";
+    do 
+    {
+        // Reading user input
+        std::cout << "> Enter Message: ";
         getline(std::cin, userInput);
 
         // Send the user input to the server
@@ -65,6 +69,7 @@ int main()
         {
             // Display response
             std::cout << "Server's Response: " << std::string(buff, bytesReceived) << "\r\n";
+            std::cout << "----------------------------------------\n";
         }
         
     } while (true);
