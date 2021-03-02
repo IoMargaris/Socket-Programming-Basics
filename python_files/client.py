@@ -7,7 +7,8 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 174.138.14.251
 print ("#--------------------#")
 print ("Connecting to server...")
-client.connect(("", 54000))
+client.connect(("", 54000)) # Connecting to local host
+# client.connect(("174.138.14.251", 54000)) # Connecting to server
 
 while True:
     user_input = input("Enter your message: ")
